@@ -87,14 +87,14 @@ export const getPredefinedSections = () => [
   }
 ];
 
-export const saveSectionsToLocalStorage = (sections) => {
-    localStorage.setItem('predefinedSections', JSON.stringify(sections));
-};
+// export const saveSectionsToLocalStorage = (sections) => {
+//     localStorage.setItem('predefinedSections', JSON.stringify(sections));
+// };
 
-export const loadSectionsFromLocalStorage = () => {
-    const sections = localStorage.getItem('predefinedSections');
-    return sections ? JSON.parse(sections) : getPredefinedSections();
-};
+// export const loadSectionsFromLocalStorage = () => {
+//     const sections = localStorage.getItem('predefinedSections');
+//     return sections ? JSON.parse(sections) : getPredefinedSections();
+// };
 
-// Save predefined sections to local storage
-saveSectionsToLocalStorage(getPredefinedSections());
+// // Save predefined sections to local storage
+// saveSectionsToLocalStorage(getPredefinedSections());
