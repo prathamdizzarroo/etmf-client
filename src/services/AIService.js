@@ -2,7 +2,7 @@ import axios from '../config/axios';
 
 export const generateContent = async (prompt, context, output) => {
   try {
-    const response = await axios.post("http://localhost:7000/api/ai/get-result", {
+    const response = await axios.post("http://localhost:5000/api/ai/get-result", {
       context,
       prompt,
       output
