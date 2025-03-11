@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Stepper,
   Step,
@@ -7,12 +7,16 @@ import {
   Button,
   Paper,
   Typography,
-  Container
+  Container,
+  Alert,
+  Snackbar
 } from '@mui/material';
 import ClinicalIntakeForm from './ClinicalIntakeForm';
 import OperationInputForm from './OperationInputForm';
 import DocumentEditor from './DocumentEditor';
 import DocumentMap from './DocumentMap';
+import studyProtocolService from '../../services/studyProtocol.service';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const steps = [
   'Clinical Intake',
@@ -94,6 +98,30 @@ const initialFormData = {
 const StudyFormStepper = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState(initialFormData);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+  const { id } = useParams(); // For editing existing protocols
+
+  useEffect(() => {
+    // If we have an ID, fetch the existing protocol
+    if (id) {
+      fetchProtocol();
+    }
+  }, [id]);
+
+  const fetchProtocol = async () => {
+    try {
+      setLoading(true);
+      const data = await studyProtocolService.getStudyProtocolById(id);
+      setFormData(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.message || 'Failed to fetch protocol');
+      setLoading(false);
+    }
+  };
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -103,163 +131,123 @@ const StudyFormStepper = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
 
-  const handleSave = (values) => {
-    console.log('Saving form data:', values); // Debug log
-    setFormData((prevData) => ({
-      ...prevData,
-      ...values
-    }));
-  };
+  const handleFormSubmit = async (stepData) => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const getStepContent = (step) => {
-    switch (step) {
-      case 0:
-        return (
-          <Box>
-            <ClinicalIntakeForm 
-              onSubmit={handleSave} 
-              initialData={formData}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ ml: 1 }}
-              >
-                Next
-              </Button>
-            </Box>
-          </Box>
-        );
-      case 1:
-        return (
-          <Box>
-            <OperationInputForm 
-              onSubmit={handleSave}
-              initialData={formData}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Button onClick={handleBack}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ ml: 1 }}
-              >
-                Next
-              </Button>
-            </Box>
-          </Box>
-        );
-      case 2:
-        return (
-          <Box>
-            <DocumentEditor 
-              onSubmit={handleSave}
-              initialData={formData}
-            />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Button onClick={handleBack}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ ml: 1 }}
-              >
-                Next
-              </Button>
-            </Box>
-          </Box>
-        );
-      case 3:
-        return (
-          <Box>
-            <DocumentMap />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-              <Button onClick={handleBack}>
-                Back
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleNext}
-                sx={{ ml: 1 }}
-              >
-                Finish
-              </Button>
-            </Box>
-          </Box>
-        );
-      default:
-        return 'Unknown step';
+      // Merge new data with existing form data
+      const updatedFormData = {
+        ...formData,
+        ...stepData
+      };
+      setFormData(updatedFormData);
+
+      // If this is the last step, submit the entire form
+      if (activeStep === steps.length - 1) {
+        if (id) {
+          // Update existing protocol
+          await studyProtocolService.updateStudyProtocol(id, updatedFormData);
+        } else {
+          // Create new protocol
+          await studyProtocolService.createStudyProtocol(updatedFormData);
+        }
+        setSuccess(true);
+        setTimeout(() => {
+          navigate('/studies'); // Navigate to studies list
+        }, 2000);
+      } else {
+        handleNext();
+      }
+    } catch (err) {
+      setError(err.message || 'Failed to save protocol');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleFinish = () => {
-    // Handle form completion
-    console.log('Final form data:', formData);
-    // You can add API call here to save all the data
+  const renderStepContent = (step) => {
+    switch (step) {
+      case 0:
+        return (
+          <ClinicalIntakeForm
+            onSubmit={handleFormSubmit}
+            initialData={formData}
+            loading={loading}
+          />
+        );
+      case 1:
+        return (
+          <OperationInputForm
+            onSubmit={handleFormSubmit}
+            initialData={formData}
+            loading={loading}
+          />
+        );
+      case 2:
+        return (
+          <DocumentEditor
+            onSubmit={handleFormSubmit}
+            initialData={formData}
+            loading={loading}
+          />
+        );
+      case 3:
+        return (
+          <DocumentMap
+            onSubmit={handleFormSubmit}
+            initialData={formData}
+            loading={loading}
+          />
+        );
+      default:
+        return null;
+    }
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mb: 4 }}>
-      <Box sx={{ width: '100%', mt: 3 }}>
-        <Stepper 
-          activeStep={activeStep}
-          sx={{ 
-            mb: 4,
-            '& .MuiStepLabel-root .Mui-completed': {
-              color: 'success.main', // custom color for completed steps
-            },
-            '& .MuiStepLabel-root .Mui-active': {
-              color: 'primary.main', // custom color for active step
-            },
-          }}
-        >
+    <Container maxWidth="lg">
+      <Paper elevation={3} sx={{ p: 4, my: 4 }}>
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>
             </Step>
           ))}
         </Stepper>
-        
-        <Paper 
-          sx={{ 
-            p: 3,
-            bgcolor: 'background.paper',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            borderRadius: 2,
-          }}
+
+        {renderStepContent(activeStep)}
+
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+          <Button
+            disabled={activeStep === 0 || loading}
+            onClick={handleBack}
+            variant="outlined"
+          >
+            Back
+          </Button>
+        </Box>
+
+        <Snackbar
+          open={error !== null}
+          autoHideDuration={6000}
+          onClose={() => setError(null)}
         >
-          {activeStep === steps.length ? (
-            <Box>
-              <Typography variant="h6" gutterBottom>
-                All steps completed
-              </Typography>
-              <Typography color="textSecondary" paragraph>
-                Your clinical trial protocol has been successfully created and documented.
-              </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                <Button 
-                  onClick={() => setActiveStep(0)}
-                  sx={{ mr: 1 }}
-                >
-                  Create New
-                </Button>
-                <Button 
-                  variant="contained"
-                  onClick={handleFinish}
-                >
-                  Submit
-                </Button>
-              </Box>
-            </Box>
-          ) : (
-            <>{getStepContent(activeStep)}</>
-          )}
-        </Paper>
-      </Box>
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          open={success}
+          autoHideDuration={6000}
+          onClose={() => setSuccess(false)}
+        >
+          <Alert severity="success" onClose={() => setSuccess(false)}>
+            Protocol {id ? 'updated' : 'created'} successfully!
+          </Alert>
+        </Snackbar>
+      </Paper>
     </Container>
   );
 };

@@ -1143,19 +1143,17 @@ const ClinicalIntakeForm = ({ onSubmit, initialData }) => {
                 />
               </Grid>
             </Grid>
-          </Box>
+          </Box>          
 
-          {/* Form Submission */}
-          <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+          {/* Submit Button */}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
             <Button
+              type="submit"
               variant="contained"
               color="primary"
-              size="large"
-              type="submit"
               disabled={isSubmitting}
-              sx={{ px: 5 }}
             >
-              Submit Form
+              Next
             </Button>
           </Box>
         </Form>
