@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Paper,
-  Typography,
   Container,
   Alert,
   Snackbar
@@ -209,9 +208,11 @@ const StudyFormStepper = () => {
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ p: 4, my: 4 }}>
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
+          {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+              <StepLabel onClick={() => setActiveStep(index)} sx={{ cursor: 'pointer' }}>
+                {label}
+              </StepLabel>
             </Step>
           ))}
         </Stepper>
