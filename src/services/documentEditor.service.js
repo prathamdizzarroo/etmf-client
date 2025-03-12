@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/documentEditor';
-
+// const API_URL = 'http://localhost:5000/api/documentEditor';
+const API_URL = `${process.env.REACT_APP_API_URL}/api/documentEditor`;
 const docuemtEditorService = {
   // In documentEditor.service.js
   createSection: async (sectionData) => {
