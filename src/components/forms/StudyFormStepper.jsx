@@ -103,24 +103,27 @@ const StudyFormStepper = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // For editing existing protocols
 
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // If we have an ID, fetch the existing protocol
+    const fetchProtocol = async () => {
+      try {
+        setLoading(true);
+        const data = await studyProtocolService.getStudyProtocolById(id);
+        setFormData(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch protocol');
+        setLoading(false);
+      }
+    };
     if (id) {
       fetchProtocol();
     }
   }, [id]);
 
-  const fetchProtocol = async () => {
-    try {
-      setLoading(true);
-      const data = await studyProtocolService.getStudyProtocolById(id);
-      setFormData(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch protocol');
-      setLoading(false);
-    }
-  };
+
+ 
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
