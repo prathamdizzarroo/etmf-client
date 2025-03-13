@@ -11,8 +11,6 @@ import {
   Button,
   CircularProgress,
   Divider,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import studyProtocolService from '../../services/studyProtocol.service';
