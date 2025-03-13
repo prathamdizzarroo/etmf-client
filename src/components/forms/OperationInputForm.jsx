@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useFormState } from 'react';
 import { Formik, Form } from 'formik';
 import {
   Box,
@@ -64,9 +64,10 @@ const initialValues = {
 };
 
 const OperationInputForm = ({ onSubmit, initialData = {}, loading = false }) => {
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [submitError, setSubmitError] = useState(null);
+  // const [submitSuccess, setSubmitSuccess] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setSubmitError, setSubmitSuccess, setIsSubmitting } = useFormState();
   const [existingProtocol, setExistingProtocol] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -80,7 +81,7 @@ const OperationInputForm = ({ onSubmit, initialData = {}, loading = false }) => 
           setExistingProtocol(protocol);
         } catch (error) {
           console.error('Error fetching protocol:', error);
-          setSubmitError('Error loading existing protocol data');
+          // setSubmitError('Error loading existing protocol data');
         }
       }
     };
