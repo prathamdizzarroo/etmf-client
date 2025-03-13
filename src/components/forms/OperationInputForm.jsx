@@ -68,6 +68,7 @@ const OperationInputForm = ({ onSubmit, initialData = {}, loading = false }) => 
   // const [submitSuccess, setSubmitSuccess] = useState(false);
   // const [isSubmitting, setIsSubmitting] = useState(false);
   const { setSubmitError, setSubmitSuccess, setIsSubmitting } = useFormState();
+  
   const [existingProtocol, setExistingProtocol] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
