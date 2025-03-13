@@ -116,7 +116,7 @@ const exportToWord = async (sections) => {
   window.URL.revokeObjectURL(url);
 };
 
-const DocumentEditor = () => {
+const DocumentEditor = ({ onSubmit, initialData, loading }) => {
   const navigate = useNavigate();
   const [sections, setSections] = useState(getStoredSections());
   const [versionHistory, setVersionHistory] = useState(getVersionHistory());
@@ -132,6 +132,17 @@ const DocumentEditor = () => {
   
   // Available section titles
   const availableSectionTitles = getAvailableSectionTitles();
+
+  // Add a function to handle the "Next" button click
+  const handleNextClick = () => {
+    // Save the current state to localStorage
+    localStorage.setItem('clinicalProtocolSections', JSON.stringify(sections));
+    
+    // If onSubmit prop is provided, call it with the current sections data
+    if (onSubmit) {
+      onSubmit({ document_sections: sections });
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('clinicalProtocolSections', JSON.stringify(sections));
@@ -327,37 +338,30 @@ const DocumentEditor = () => {
   
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ height: '100%', bgcolor: 'background.default', minHeight: '100vh' }}>
-        <AppBar position="static" color="default" elevation={2}>
-          <Toolbar sx={{ minHeight: 64 }}>
-            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 500 }}>
-              Clinical Trial Protocol Editor
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <AppBar position="static" color="default" elevation={1}>
+          <Toolbar>
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              Protocol Document Editor
             </Typography>
-            <Tooltip title="Reset to Template">
-              <Button startIcon={<ResetIcon />} onClick={handleReset}>
-                Reset
-              </Button>
-            </Tooltip>
-            <Tooltip title="Save Changes">
-              <Button startIcon={<SaveIcon />}>Save</Button>
-            </Tooltip>
-            <Tooltip title="Add New Section">
-              <Button 
-                startIcon={<AddIcon />} 
-                sx={{ mx: 1 }}
-                onClick={handleOpenAddDialog}
-              >
-                Add Section
-              </Button>
-            </Tooltip>
-            <Tooltip title="Preview Document">
-              <Button startIcon={<PreviewIcon />} sx={{ mx: 1 }}>Preview</Button>
+            <Tooltip title="Reset">
+              <IconButton>
+                <ResetIcon />
+              </IconButton>
             </Tooltip>
             <Tooltip title="Export to Word">
-              <Button startIcon={<ExportIcon />} variant="contained" onClick={handleExport}>
-                Export
-              </Button>
+              <IconButton onClick={handleExport}>
+                <ExportIcon />
+              </IconButton>
             </Tooltip>
+            <Button
+              startIcon={<AddIcon />}
+              variant="contained"
+              onClick={handleOpenAddDialog}
+              sx={{ ml: 2 }}
+            >
+              Add Section
+            </Button>
           </Toolbar>
         </AppBar>
 
@@ -452,7 +456,7 @@ const DocumentEditor = () => {
           </DialogActions>
         </Dialog>
 
-        <Box sx={{ p: 1 }}>
+        <Box sx={{ p: 1, flexGrow: 1, overflow: 'auto' }}>
           {sections && sections.map((section) => (
             <Paper key={section.id} sx={{ mb: 3, p: 3, borderRadius: 2, '&:hover': { boxShadow: '0 4px 8px rgba(0,0,0,0.1)' } }}>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', borderBottom: '1px solid #eee', pb: 1 }}>
@@ -543,6 +547,21 @@ const DocumentEditor = () => {
             <HistoryIcon fontSize="small" sx={{ mr: 1 }} /> View History
           </MenuItem>
         </Menu>
+
+        {/* Next Button for StudyFormStepper */}
+        {onSubmit && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2, borderTop: '1px solid rgba(0, 0, 0, 0.12)', mt: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNextClick}
+              disabled={loading}
+              sx={{ minWidth: 120 }}
+            >
+              {loading ? <CircularProgress size={24} /> : 'Next'}
+            </Button>
+          </Box>
+        )}
       </Box>
     </ThemeProvider>
   );

@@ -17,6 +17,7 @@ import DocumentEditor from './DocumentEditor';
 import DocumentMap from './DocumentMap';
 import studyProtocolService from '../../services/studyProtocol.service';
 import { useNavigate, useParams } from 'react-router-dom';
+import api from '../../services/api';
 
 const steps = [
   'Clinical Intake',
@@ -123,47 +124,52 @@ const StudyFormStepper = () => {
     }
   };
 
+  const handleFormSubmit = (stepData) => {
+    // Merge the new step data with existing form data
+    setFormData((prevData) => ({
+      ...prevData,
+      ...stepData
+    }));
+
+    // If this is the last step, submit the entire form
+    if (activeStep === steps.length - 1) {
+      setLoading(true);
+      
+      const submitData = {
+        ...formData,
+        ...stepData
+      };
+      
+      // Either update existing protocol or create new one
+      const apiCall = id
+        ? api.put(`/protocols/${id}`, submitData)
+        : api.post('/protocols', submitData);
+      
+      apiCall
+        .then(() => {
+          setSuccess(true);
+          setLoading(false);
+          // Navigate to studies list after successful submission
+          setTimeout(() => {
+            navigate('/studies');
+          }, 2000);
+        })
+        .catch((err) => {
+          setError(err.response?.data?.message || 'An error occurred');
+          setLoading(false);
+        });
+    } else {
+      // If not the last step, proceed to next step
+      handleNext();
+    }
+  };
+
   const handleNext = () => {
-    setActiveStep((prevStep) => prevStep + 1);
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
   const handleBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
-  };
-
-  const handleFormSubmit = async (stepData) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Merge new data with existing form data
-      const updatedFormData = {
-        ...formData,
-        ...stepData
-      };
-      setFormData(updatedFormData);
-
-      // If this is the last step, submit the entire form
-      if (activeStep === steps.length - 1) {
-        if (id) {
-          // Update existing protocol
-          await studyProtocolService.updateStudyProtocol(id, updatedFormData);
-        } else {
-          // Create new protocol
-          await studyProtocolService.createStudyProtocol(updatedFormData);
-        }
-        setSuccess(true);
-        setTimeout(() => {
-          navigate('/studies'); // Navigate to studies list
-        }, 2000);
-      } else {
-        handleNext();
-      }
-    } catch (err) {
-      setError(err.message || 'Failed to save protocol');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const renderStepContent = (step) => {
@@ -201,7 +207,7 @@ const StudyFormStepper = () => {
           />
         );
       default:
-        return null;
+        return <div>Unknown step</div>;
     }
   };
 
@@ -226,6 +232,18 @@ const StudyFormStepper = () => {
           >
             Back
           </Button>
+          
+          {/* Manual Next button for direct navigation */}
+          {activeStep < steps.length - 1 && (
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleNext}
+              disabled={loading}
+            >
+              Skip to Next
+            </Button>
+          )}
         </Box>
 
         <Snackbar
