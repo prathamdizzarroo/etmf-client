@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Drawer,
@@ -7,13 +7,11 @@ import {
   Typography,
   IconButton,
   List,
-  ListItem,
   ListItemIcon,
   ListItemText,
   Avatar,
   Badge,
   Divider,
-  useTheme,
   useMediaQuery,
   Paper,
   Breadcrumbs,
@@ -35,7 +33,6 @@ import {
 import {
   Menu as MenuIcon,
   Description,
-  FolderOpen,
   Assessment,
   Settings,
   Notifications as NotificationsIcon,
