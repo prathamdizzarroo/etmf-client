@@ -19,11 +19,14 @@ import {
   createTheme,
   AppBar,
   Toolbar,
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
   History as HistoryIcon,
 } from '@mui/icons-material';
+
+import documentEditorService from '../../services/documentEditor.service';
 
 // Enterprise theme
 const theme = createTheme({
@@ -46,35 +49,39 @@ const VersionHistory = () => {
   const [sectionTitle, setSectionTitle] = useState('');
   const [selectedVersion, setSelectedVersion] = useState(null);
   const [currentTab, setCurrentTab] = useState(0);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    // Load version history from localStorage
-    try {
-      const storedHistory = localStorage.getItem('versionHistory');
-      const storedSections = localStorage.getItem('clinicalProtocolSections');
-      
-      if (storedHistory && storedSections) {
-        const historyData = JSON.parse(storedHistory);
-        const sectionsData = JSON.parse(storedSections);
+    const fetchVersionHistory = async () => {
+      try {
+        setLoading(true);
         
-        // Find section details
-        const section = sectionsData.find(s => s.id === sectionId);
-        if (section) {
-          setSectionTitle(section.title);
+        const response = await documentEditorService.getAllVersions(sectionId);
+        
+        if (response.success && response.data) {
+          setSectionTitle(response.data.title || 'Untitled Section');
+          
+          if (response.data.versions && response.data.versions.length > 0) {
+            setVersionHistory(response.data.versions);
+            // Select the latest version (highest version number)
+            const latestVersion = [...response.data.versions].sort((a, b) => 
+              b.versionNumber - a.versionNumber)[0];
+            setSelectedVersion(latestVersion);
+          } else {
+            setVersionHistory([]);
+          }
+        } else {
+          setVersionHistory([]);
         }
-        
-        // Get versions for this section
-        const sectionVersions = historyData[sectionId] || [];
-        setVersionHistory(sectionVersions);
-        
-        // Select the most recent version by default
-        if (sectionVersions.length > 0) {
-          setSelectedVersion(sectionVersions[sectionVersions.length - 1]);
-        }
+      } catch (err) {
+        console.error("Failed to load version history:", err);
+        setVersionHistory([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to load version history:", error);
-    }
+    };
+    
+    fetchVersionHistory();
   }, [sectionId]);
   
   const handleBack = () => {
@@ -93,6 +100,38 @@ const VersionHistory = () => {
     const date = new Date(timestamp);
     return date.toLocaleString();
   };
+  
+  // Loading state
+  if (loading) {
+    return (
+      <ThemeProvider theme={theme}>
+        <Box sx={{ height: '100%', bgcolor: 'background.default', minHeight: '100vh' }}>
+          <AppBar position="static" color="default" elevation={2}>
+            <Toolbar sx={{ minHeight: 64 }}>
+              <Tooltip title="Back to Editor">
+                <IconButton 
+                  edge="start" 
+                  color="inherit" 
+                  onClick={handleBack} 
+                  sx={{ mr: 2 }}
+                >
+                  <ArrowBackIcon />
+                </IconButton>
+              </Tooltip>
+              <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 500 }}>
+                Version History
+              </Typography>
+            </Toolbar>
+          </AppBar>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 64px)' }}>
+            <CircularProgress />
+          </Box>
+        </Box>
+      </ThemeProvider>
+    );
+  }
+  
   
   // No history available
   if (versionHistory.length === 0) {
@@ -174,12 +213,12 @@ const VersionHistory = () => {
                 <List sx={{ p: 0 }}>
                   {versionHistory.map((version, index) => (
                     <ListItem 
-                      key={index} 
+                      key={version.versionNumber || index} 
                       disablePadding 
                       divider={index < versionHistory.length - 1}
                     >
                       <ListItemButton 
-                        selected={selectedVersion && selectedVersion.version === version.version}
+                        selected={selectedVersion && selectedVersion.versionNumber === version.versionNumber}
                         onClick={() => handleVersionSelect(version)}
                         sx={{ 
                           '&.Mui-selected': { 
@@ -189,8 +228,8 @@ const VersionHistory = () => {
                         }}
                       >
                         <ListItemText 
-                          primary={`Version ${version.version}`}
-                          secondary={formatDate(version.timestamp)}
+                          primary={`Version ${version.versionNumber}`}
+                          secondary={formatDate(version.createdAt)}
                           primaryTypographyProps={{ fontWeight: 500 }}
                         />
                       </ListItemButton>
@@ -223,7 +262,7 @@ const VersionHistory = () => {
                         {currentTab === 0 ? 'Generated Content' : currentTab === 1 ? 'Prompt' : 'Context'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Version {selectedVersion.version} • {formatDate(selectedVersion.timestamp)}
+                        Version {selectedVersion.versionNumber} • {formatDate(selectedVersion.createdAt)}
                       </Typography>
                     </Box>
                     

@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Paper,
-  Typography,
   Container,
   Alert,
   Snackbar
@@ -104,24 +103,27 @@ const StudyFormStepper = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // For editing existing protocols
 
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // If we have an ID, fetch the existing protocol
+    const fetchProtocol = async () => {
+      try {
+        setLoading(true);
+        const data = await studyProtocolService.getStudyProtocolById(id);
+        setFormData(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message || 'Failed to fetch protocol');
+        setLoading(false);
+      }
+    };
     if (id) {
       fetchProtocol();
     }
   }, [id]);
 
-  const fetchProtocol = async () => {
-    try {
-      setLoading(true);
-      const data = await studyProtocolService.getStudyProtocolById(id);
-      setFormData(data);
-      setLoading(false);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch protocol');
-      setLoading(false);
-    }
-  };
+
+ 
 
   const handleNext = () => {
     setActiveStep((prevStep) => prevStep + 1);
@@ -209,9 +211,11 @@ const StudyFormStepper = () => {
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ p: 4, my: 4 }}>
         <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-          {steps.map((label) => (
+          {steps.map((label, index) => (
             <Step key={label}>
-              <StepLabel>{label}</StepLabel>
+              <StepLabel onClick={() => setActiveStep(index)} sx={{ cursor: 'pointer' }}>
+                {label}
+              </StepLabel>
             </Step>
           ))}
         </Stepper>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useFormState } from 'react-hook-form';
 import { Formik, Form } from 'formik';
 import {
   Box,
@@ -11,8 +12,6 @@ import {
   Button,
   CircularProgress,
   Divider,
-  Snackbar,
-  Alert
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import studyProtocolService from '../../services/studyProtocol.service';
@@ -66,9 +65,11 @@ const initialValues = {
 };
 
 const OperationInputForm = ({ onSubmit, initialData = {}, loading = false }) => {
-  const [submitError, setSubmitError] = useState(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // const [submitError, setSubmitError] = useState(null);
+  // const [submitSuccess, setSubmitSuccess] = useState(false);
+  // const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setSubmitError, setSubmitSuccess, setIsSubmitting } = useFormState();
+
   const [existingProtocol, setExistingProtocol] = useState(null);
   const navigate = useNavigate();
   const { id } = useParams();
@@ -82,7 +83,7 @@ const OperationInputForm = ({ onSubmit, initialData = {}, loading = false }) => 
           setExistingProtocol(protocol);
         } catch (error) {
           console.error('Error fetching protocol:', error);
-          setSubmitError('Error loading existing protocol data');
+          // setSubmitError('Error loading existing protocol data');
         }
       }
     };
