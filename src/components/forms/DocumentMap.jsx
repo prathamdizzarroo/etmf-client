@@ -17,27 +17,18 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider,
   Drawer,
 } from '@mui/material';
-import { TreeView, TreeItem } from '@mui/x-tree-view';
+import { TreeItem } from '@mui/x-tree-view';
 import {
-  ExpandMore,
-  ChevronRight,
   Search as SearchIcon,
   FilterList as FilterIcon,
   Folder as FolderIcon,
   Description as DocumentIcon,
   Add as AddIcon,
-  ViewList as ViewListIcon,
-  GridView as GridViewIcon,
-  Dashboard as DashboardIcon,
   Assignment as AssignmentIcon,
   Settings as SettingsIcon,
   People as PeopleIcon,
-  BarChart as BarChartIcon,
-  Work as WorkIcon,
-  Science as ScienceIcon,
 } from '@mui/icons-material';
 
 const documentHierarchy = {
@@ -350,9 +341,10 @@ const FlowChartCanvas = ({ width = 800, height = 500 }) => {
     drawArrow(ctx, centerX, tmfY + boxHeight, centerX, submissionY);
     drawArrow(ctx, centerX, tmfY + boxHeight, sp3X + boxWidth/2, submissionY);
   };
-
+  // eslint-disable-next-line
   useEffect(() => {
     draw();
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -371,9 +363,9 @@ const FlowChartCanvas = ({ width = 800, height = 500 }) => {
 };
 
 const DocumentMap = ({ onSubmit, initialData, loading }) => {
-  const [viewMode, setViewMode] = useState('tree');
+  // const [viewMode, setViewMode] = useState('tree');
   const [searchTerm, setSearchTerm] = useState('');
-  const [expanded, setExpanded] = useState(['root']);
+  // const [expanded, setExpanded] = useState(['root']);
   const [selectedItem, setSelectedItem] = useState('overview');
 
   // Handle Next button click
@@ -384,9 +376,9 @@ const DocumentMap = ({ onSubmit, initialData, loading }) => {
     }
   };
 
-  const handleToggle = (event, nodeIds) => {
-    setExpanded(nodeIds);
-  };
+  // const handleToggle = (event, nodeIds) => {
+  //   setExpanded(nodeIds);
+  // };
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -406,7 +398,7 @@ const DocumentMap = ({ onSubmit, initialData, loading }) => {
         return 'default';
     }
   };
-
+  // eslint-disable-next-line
   const renderTree = (nodes) => (
     <TreeItem 
       key={nodes.id}
