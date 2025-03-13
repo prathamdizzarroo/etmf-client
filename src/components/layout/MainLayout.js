@@ -278,6 +278,7 @@ const MainLayout = ({ children }) => {
     
     // Handle all possible routes
     if (path === '/') return 'Dashboard';
+    if(path.startsWith('/clinical-intake')) return 'Clinical Intake';
     if (path.startsWith('/documents')) return 'Documents';
     if (path.startsWith('/document-')) return 'Documents';
     if (path.startsWith('/studies')) return 'Studies';
@@ -301,6 +302,12 @@ const MainLayout = ({ children }) => {
 
   // Menu structure with nested items
   const menuItems = [
+    {
+      id: 'clinical-intake',
+      text: 'Clinical Intake',
+      icon: <Description />,
+      path: '/clinical-intake',
+    },
     { 
       id: 'dashboard',
       text: 'Dashboard', 
