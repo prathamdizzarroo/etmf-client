@@ -1,8 +1,10 @@
 import axios from '../config/axios';
 
+const API_URL = `${process.env.REACT_APP_API_URL}/api/ai`;
+
 export const generateContent = async (prompt, context, output) => {
   try {
-    const response = await axios.post("http://localhost:5000/api/ai/get-result", {
+    const response = await axios.post(`${API_URL}/get-result`, {
       context,
       prompt,
       output

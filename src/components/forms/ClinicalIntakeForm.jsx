@@ -1065,7 +1065,7 @@ const ClinicalIntakeForm = ({ onSubmit, initialData }) => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 >
-                  {['Electronic Data Capture (EDC)', 'Paper CRF', 'Hybrid'].map((method) => (
+                  {['Electronic Data Capture (EDC)', 'Paper-Based CRF'].map((method) => (
                     <MenuItem key={method} value={method}>
                       {method}
                     </MenuItem>
@@ -1092,7 +1092,7 @@ const ClinicalIntakeForm = ({ onSubmit, initialData }) => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                 >
-                  {['On-Site', 'Remote', 'Risk-Based', 'Hybrid'].map((type) => (
+                  {['On-Site', 'Remote'].map((type) => (
                     <MenuItem key={type} value={type}>
                       {type}
                     </MenuItem>

@@ -13,14 +13,10 @@ import {
   TextField,
   Button,
   Grid,
-  FormControlLabel,
+  FormControl,
   Select,
   MenuItem,
   InputLabel,
-  FormControl,
-  Alert,
-  IconButton,
-  Tooltip,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -30,8 +26,6 @@ import {
   Email as EmailIcon,
   Save as SaveIcon,
   Person as PersonIcon,
-  Business as BusinessIcon,
-  Help as HelpIcon,
 } from '@mui/icons-material';
 
 const Settings = () => {
@@ -39,8 +33,6 @@ const Settings = () => {
     notifications: {
       email: true,
       desktop: true,
-      updates: true,
-      reviews: true,
     },
     preferences: {
       language: 'en',
